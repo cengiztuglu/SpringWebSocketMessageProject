@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Chat WebSocket</title>
@@ -15,13 +16,13 @@
         }
 
         function connect() {
-            var socket = new SockJS(baseAddress + '/chat');
+            var socket = new SockJS(baseAddress + '/ws-chat');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function(frame) {
                 setConnected(true);
                 console.log('Connected: ' + frame);
-                stompClient.subscribe('/topic', function (message) {
-                    handleReceivedMessage(JSON.parse(message.body));
+                stompClient.subscribe('/topic/messages', function (messageOutput) {
+                    handleReceivedMessage(JSON.parse(messageOutput.body));
                 });
             });
         }
@@ -36,16 +37,23 @@
 
         function sendMessage() {
             var from = document.getElementById('from').value;
-            var text = document.getElementById('text').value;
-            stompClient.send("/chat", {},
-                JSON.stringify({'sender':from, 'message':text}));
+            var messageText = document.getElementById('messageText').value;
+            console.log('From:', from);
+            console.log('Text:', messageText);
+            if (messageText.trim() !== '') {
+
+                stompClient.send("/app/chat",{}, JSON.stringify({'messageText': messageText, 'sender':from}));
+
+            } else {
+                alert('Mesaj boş olamaz!');
+            }
         }
 
         function handleReceivedMessage(message) {
             var response = document.getElementById('response');
             var p = document.createElement('p');
             p.style.wordWrap = 'break-word';
-            p.appendChild(document.createTextNode(message.sender + ": " + message.message ));
+            p.appendChild(document.createTextNode(message.sender.username + ": " + message.messageText));
             response.appendChild(p);
         }
     </script>
@@ -64,11 +72,10 @@
     </div>
     <br />
     <div id="conversationDiv">
-        <input type="text" id="text" placeholder="Message.."/>
+        <input type="text" id="messageText" placeholder="Message.."/>
         <button id="sendMessage" onclick="sendMessage();">Send</button>
         <p id="response"></p>
     </div>
 </div>
-
 </body>
 </html>
