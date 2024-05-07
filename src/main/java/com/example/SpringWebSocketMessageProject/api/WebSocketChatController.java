@@ -1,4 +1,4 @@
-package com.example.SpringWebSocketMessageProject.config.api;
+package com.example.SpringWebSocketMessageProject.api;
 
 import com.example.SpringWebSocketMessageProject.entity.Message;
 import com.example.SpringWebSocketMessageProject.entity.User;
